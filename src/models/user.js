@@ -10,6 +10,7 @@ const userSchema = mongoose.Schema({
   },
   password: { type: String, required: true },
   name: { type: String, required: true },
+  savedAnswers: { type: [String], required: true },
 });
 
 export default mongoose.model("User", userSchema);

@@ -1,4 +1,5 @@
 import UserModel from "../models/user";
+import AnswerModel from "../models/answer";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -57,5 +58,29 @@ export const LOGIN_USER = async (req, res) => {
   return res.status(200).json({
     message: "Login Successful",
     jwt: token,
+  });
+};
+
+export const SAVE_ANSWER_TO_USER = async (req, res) => {
+  const userId = req.body.userId;
+  const answerId = req.body.answerId;
+
+  const answer = await AnswerModel.findOne({ id: answerId });
+
+  if (!answer) {
+    return res(404).json({
+      message: `Answer with id ${answerId} does not exist`,
+    });
+  }
+
+  const response = await UserModel.findOneAndUpdate(
+    { id: userId },
+    { $push: { savedAnswers: answerId } },
+    { new: true }
+  );
+
+  res.status(200).json({
+    message: "Answer saved",
+    response: response,
   });
 };

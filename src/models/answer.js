@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const schema = mongoose.Schema({
+const answerSchema = mongoose.Schema({
   id: { type: String, required: true },
   question_id: { type: String, required: true },
   answer_text: { type: String, required: true },
@@ -8,4 +8,4 @@ const schema = mongoose.Schema({
   creationTime: { type: Date, required: true },
 });
 
-export default mongoose.model("Answer", schema);
+export default mongoose.model("Answer", answerSchema);
