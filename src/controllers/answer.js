@@ -6,7 +6,10 @@ export const CREATE_ANSWER = async (req, res) => {
     const answer = {
       ...req.body,
       id: uuidv4(),
+      question_id: req.params.id,
+      gained_likes_number: "0",
       createdAt: new Date(),
+      userId: req.body.userId,
     };
 
     const response = new AnswerModel(answer);

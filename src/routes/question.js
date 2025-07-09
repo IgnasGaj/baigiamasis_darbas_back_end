@@ -16,6 +16,6 @@ router.post("/", auth, validate(questionSchema), CREATE_QUESTION);
 router.delete("/:id", auth, DELETE_QUESTION_BY_ID);
 router.get("/", GET_ALL_QUESTIONS);
 router.get("/filter", GET_FILTERED_QUESTIONS);
-router.get("/:questionId/answers", GET_ANSWERS_FOR_QUESTION);
+router.get("/:id/answers", GET_ANSWERS_FOR_QUESTION);
 
 export default router;

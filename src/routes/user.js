@@ -11,8 +11,8 @@ import userLoginSchema from "../schemas/UserLoginSchema.js";
 
 const router = express.Router();
 
-router.post("/register", validate(userLoginSchema), INSERT_USER);
-router.post("/login", validate(userRegisterSchema), LOGIN_USER);
+router.post("/register", validate(userRegisterSchema), INSERT_USER);
+router.post("/login", validate(userLoginSchema), LOGIN_USER);
 router.post("/save-answer", auth, SAVE_ANSWER_TO_USER);
 
 export default router;

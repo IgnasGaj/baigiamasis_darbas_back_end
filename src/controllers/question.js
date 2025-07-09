@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
-import QuestionModel from "../models/question";
-import AnswerModel from "../models/answer";
+import QuestionModel from "../models/question.js";
+import AnswerModel from "../models/answer.js";
 
 export const CREATE_QUESTION = async (req, res) => {
   try {
@@ -64,7 +64,7 @@ export const GET_ALL_QUESTIONS = async (req, res) => {
 
 export const GET_ANSWERS_FOR_QUESTION = async (req, res) => {
   try {
-    const { questionId } = req.params;
+    const questionId = req.params.id;
 
     const answers = await AnswerModel.find({ question_id: questionId });
 

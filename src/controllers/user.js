@@ -1,5 +1,5 @@
-import UserModel from "../models/user";
-import AnswerModel from "../models/answer";
+import UserModel from "../models/user.js";
+import AnswerModel from "../models/answer.js";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";

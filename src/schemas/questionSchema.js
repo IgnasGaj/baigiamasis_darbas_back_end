@@ -4,8 +4,6 @@ const questionSchema = Joi.object({
   userId: Joi.string().required(),
   question_text: Joi.string().min(5).required(),
   question_title: Joi.string().min(5).required(),
-  createdAt: Joi.date().required(),
-  id: Joi.string().required(),
 });
 
 export default questionSchema;
