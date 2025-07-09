@@ -76,3 +76,28 @@ export const GET_ANSWERS_FOR_QUESTION = async (req, res) => {
     });
   }
 };
+
+//EXPERIMENTAL
+
+export const GET_FILTERED_QUESTIONS = async (req, res) => {
+  try {
+    const { answered } = req.query;
+    const answeredQuestionIds = await AnswerModel.distinct("questionId");
+
+    let filter = {};
+    if (answered === "true") {
+      filter.id = { $in: answeredQuestionIds };
+    } else if (answered === "false") {
+      filter.id = { $nin: answeredQuestionIds };
+    }
+
+    const questions = await QuestionModel.find(filter).select("-__v");
+
+    return res.status(200).json({ questions });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: "Unexpected error while trying to filter questions",
+    });
+  }
+};
