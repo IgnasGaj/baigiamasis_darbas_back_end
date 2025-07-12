@@ -51,9 +51,20 @@ export const DELETE_QUESTION_BY_ID = async (req, res) => {
 
 export const GET_ALL_QUESTIONS = async (req, res) => {
   try {
-    const questions = await QuestionModel.find().select("-__v");
+    const questions = await QuestionModel.find()
+      .select("-__v")
+      .populate("userId", "username")
+      .sort({ createdAt: -1 });
 
-    return res.status(200).json({ questions });
+    const formattedQuestions = questions.map((q) => ({
+      id: q.id,
+      question_title: q.question_title,
+      question_text: q.question_text,
+      createdAt: q.createdAt,
+      username: q.userId.username,
+    }));
+
+    return res.status(200).json({ questions: formattedQuestions });
   } catch (err) {
     console.error(err);
     return res.status(500).json({
