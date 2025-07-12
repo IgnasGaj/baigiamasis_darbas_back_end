@@ -1,12 +1,13 @@
 import { v4 as uuidv4 } from "uuid";
 import QuestionModel from "../models/question.js";
-import AnswerModel from "../models/answer.js";
 
 export const CREATE_QUESTION = async (req, res) => {
   try {
     const question = {
-      ...req.body,
       id: uuidv4(),
+      question_title: req.body.question_title,
+      question_text: req.body.question_text,
+      userId: req.body.userId,
       createdAt: new Date(),
     };
 
@@ -21,6 +22,39 @@ export const CREATE_QUESTION = async (req, res) => {
     console.error(err);
     return res.status(500).json({
       message: " Unexpected Error",
+    });
+  }
+};
+
+export const GET_QUESTION_BY_ID = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const question = await QuestionModel.findOne({ id }).populate(
+      "userId",
+      "username"
+    );
+
+    if (!question) {
+      return res.status(404).json({
+        message: `Question with id ${id} does not exist`,
+      });
+    }
+
+    return res.status(200).json({
+      message: "Question fetched successfully",
+      question: {
+        id: question.id,
+        question_title: question.question_title,
+        question_text: question.question_text,
+        createdAt: question.createdAt,
+        username: question.userId?.username || "Unknown",
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: "Unexpected error while fetching the question",
     });
   }
 };
@@ -61,7 +95,7 @@ export const GET_ALL_QUESTIONS = async (req, res) => {
       question_title: q.question_title,
       question_text: q.question_text,
       createdAt: q.createdAt,
-      username: q.userId.username,
+      username: q.userId?.username || "Unknown",
     }));
 
     return res.status(200).json({ questions: formattedQuestions });
@@ -69,21 +103,6 @@ export const GET_ALL_QUESTIONS = async (req, res) => {
     console.error(err);
     return res.status(500).json({
       message: "Unexpected error while fetching questions",
-    });
-  }
-};
-
-export const GET_ANSWERS_FOR_QUESTION = async (req, res) => {
-  try {
-    const questionId = req.params.id;
-
-    const answers = await AnswerModel.find({ question_id: questionId });
-
-    return res.status(200).json({ answers });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({
-      message: "Unexpected error while fetching answers",
     });
   }
 };

@@ -58,6 +58,7 @@ export const LOGIN_USER = async (req, res) => {
   return res.status(200).json({
     message: "Login Successful",
     jwt: token,
+    username: user.username,
   });
 };
 
