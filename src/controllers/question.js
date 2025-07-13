@@ -1,5 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import QuestionModel from "../models/question.js";
+import UserModel from "../models/user.js";
+import AnswerModel from "../models/answer.js";
 
 export const CREATE_QUESTION = async (req, res) => {
   try {
@@ -21,7 +23,7 @@ export const CREATE_QUESTION = async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.status(500).json({
-      message: " Unexpected Error",
+      message: "Unexpected Error",
     });
   }
 };
@@ -30,16 +32,15 @@ export const GET_QUESTION_BY_ID = async (req, res) => {
   try {
     const id = req.params.id;
 
-    const question = await QuestionModel.findOne({ id }).populate(
-      "userId",
-      "username"
-    );
+    const question = await QuestionModel.findOne({ id });
 
     if (!question) {
       return res.status(404).json({
         message: `Question with id ${id} does not exist`,
       });
     }
+
+    const user = await UserModel.findOne({ id: question.userId });
 
     return res.status(200).json({
       message: "Question fetched successfully",
@@ -48,7 +49,7 @@ export const GET_QUESTION_BY_ID = async (req, res) => {
         question_title: question.question_title,
         question_text: question.question_text,
         createdAt: question.createdAt,
-        username: question.userId?.username || "Unknown",
+        username: user?.username || "Unknown",
       },
     });
   } catch (err) {
@@ -87,16 +88,20 @@ export const GET_ALL_QUESTIONS = async (req, res) => {
   try {
     const questions = await QuestionModel.find()
       .select("-__v")
-      .populate("userId", "username")
       .sort({ createdAt: -1 });
 
-    const formattedQuestions = questions.map((q) => ({
-      id: q.id,
-      question_title: q.question_title,
-      question_text: q.question_text,
-      createdAt: q.createdAt,
-      username: q.userId?.username || "Unknown",
-    }));
+    const formattedQuestions = await Promise.all(
+      questions.map(async (q) => {
+        const user = await UserModel.findOne({ id: q.userId });
+        return {
+          id: q.id,
+          question_title: q.question_title,
+          question_text: q.question_text,
+          createdAt: q.createdAt,
+          username: user?.username || "Unknown",
+        };
+      })
+    );
 
     return res.status(200).json({ questions: formattedQuestions });
   } catch (err) {
@@ -106,8 +111,6 @@ export const GET_ALL_QUESTIONS = async (req, res) => {
     });
   }
 };
-
-//EXPERIMENTAL
 
 export const GET_FILTERED_QUESTIONS = async (req, res) => {
   try {
@@ -121,9 +124,24 @@ export const GET_FILTERED_QUESTIONS = async (req, res) => {
       filter.id = { $nin: answeredQuestionIds };
     }
 
-    const questions = await QuestionModel.find(filter).select("-__v");
+    const questions = await QuestionModel.find(filter)
+      .select("-__v")
+      .sort({ createdAt: -1 });
 
-    return res.status(200).json({ questions });
+    const formattedQuestions = await Promise.all(
+      questions.map(async (q) => {
+        const user = await UserModel.findOne({ id: q.userId });
+        return {
+          id: q.id,
+          question_title: q.question_title,
+          question_text: q.question_text,
+          createdAt: q.createdAt,
+          username: user?.username || "Unknown",
+        };
+      })
+    );
+
+    return res.status(200).json({ questions: formattedQuestions });
   } catch (err) {
     console.error(err);
     return res.status(500).json({
